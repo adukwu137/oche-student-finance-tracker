@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Finance Tracker</title>
+  <meta name="description" content="Track student expenses, set a spending cap and search transactions with regular expressions. Works offline in your browser.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles/styles.css">
+  <script defer src="scripts/finance.js"></script>
+<script defer src="scripts/validators.js"></script>
+<script defer src="scripts/search.js"></script>
+<script defer src="scripts/state.js"></script>
+<script defer src="scripts/storage.js"></script>
+<script defer src="scripts/seed-data.js"></script>
+<script defer src="scripts/ui.js"></script>
+<script defer src="scripts/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <div class="app-layout">
+  <header class="app-header">
+    <h1>Student Finance Tracker</h1>
+    <nav aria-label="Main">
+      <ul class="nav-list">
+        <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
+        <li><a href="#transactions" class="nav-link">Records</a></li>
+        <li><a href="#add" class="nav-link">Add/Edit Form</a></li>
+        <li><a href="#settings" class="nav-link">Settings</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <noscript>
+      <p class="banner banner-error">This app needs JavaScript. Please enable it and reload the page.</p>
+    </noscript>
+
+    <!-- ============================== Dashboard ============================== -->
+    <section id="dashboard" class="app-section" aria-labelledby="dashboard-title">
+      <h2 id="dashboard-title" tabindex="-1">Dashboard</h2>
+      <p class="muted">All amounts are shown in <strong id="display-currency-label">RWF</strong>. Change this in <a href="#settings">Settings</a>.</p>
+
+      <div class="stat-grid">
+        <article class="stat">
+          <h3>Transactions</h3>
+          <p class="stat-value" id="stat-count">0</p>
+          <p class="stat-note" id="stat-count-note"></p>
+        </article>
+        <article class="stat">
+          <h3>Total spending</h3>
+          <p class="stat-value" id="stat-total">0</p>
+          <p class="stat-note">Every transaction in the tracker.</p>
+        </article>
+        <article class="stat">
+          <h3>Top category</h3>
+          <p class="stat-value" id="stat-top">None yet</p>
+          <p class="stat-note" id="stat-top-note"></p>
+        </article>
+        <article class="stat">
+          <h3>Last 7 days</h3>
+          <p class="stat-value" id="stat-week">0</p>
+          <p class="stat-note" id="stat-week-note"></p>
+        </article>
+      </div>
+
+      <div class="dash-grid">
+        <article class="panel cap-panel" id="cap-panel" data-state="none" aria-labelledby="cap-title">
+          <h3 id="cap-title">Spending cap</h3>
+          <p class="cap-badge" id="cap-badge"></p>
+          <p class="sr-only" id="cap-live" role="status" aria-live="polite" aria-atomic="true"></p>
+          <div class="meter" aria-hidden="true"><div class="meter-fill" id="cap-bar"></div></div>
+          <dl class="cap-figures" id="cap-figures"></dl>
+          <p id="cap-detail" class="cap-detail"></p>
+        </article>
+
+        <article class="panel" aria-labelledby="breakdown-title">
+          <h3 id="breakdown-title">Spending by category</h3>
+          <p id="breakdown-empty" class="empty-note" hidden>No spending yet. Add a transaction to see your categories.</p>
+          <ul class="breakdown" id="breakdown-list"></ul>
+        </article>
+
+        <article class="panel panel-wide" aria-labelledby="week-title">
+          <h3 id="week-title">Spending over the last seven days</h3>
+          <p class="muted" id="week-range"></p>
+          <p id="week-empty" class="empty-note" hidden>Nothing spent in this window.</p>
+          <ol class="chart" id="week-chart"></ol>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================ Transactions ============================= -->
+    <section id="transactions" class="app-section" aria-labelledby="transactions-title">
+      <h2 id="transactions-title" tabindex="-1">Records</h2>
+
+      <form class="panel filters" id="filter-form" role="search" aria-label="Search and filter transactions" novalidate>
+        <div class="field field-grow">
+          <label for="search-input">Search records</label>
+          <div class="input-row">
+            <input id="search-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+                   maxlength="200" placeholder="Search by description or category" aria-describedby="search-help search-error">
+            <button type="button" class="btn btn-secondary" id="search-clear">Clear search</button>
+          </div>
+          <p class="hint" id="search-help">Type to filter the list. Matching text is highlighted.</p>
+          <p class="error" id="search-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label class="check">
+            <input type="checkbox" id="search-ignore-case" checked>
+            <span>Ignore case</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="filter-category">Category</label>
+          <select id="filter-category"></select>
+        </div>
+
+        <div class="field">
+          <label for="sort-by">Sort by</label>
+          <select id="sort-by">
+            <option value="date-desc">Date, newest first</option>
+            <option value="date-asc">Date, oldest first</option>
+            <option value="description-asc">Description, A to Z</option>
+            <option value="description-desc">Description, Z to A</option>
+            <option value="amount-desc">Amount, high to low</option>
+            <option value="amount-asc">Amount, low to high</option>
+          </select>
+        </div>
+
+        <div class="field field-actions">
+          <button type="button" class="btn btn-secondary" id="clear-filters">Clear filters</button>
+        </div>
+      </form>
+
+      <p class="result-count" id="result-count"></p>
+      <p class="sr-only" id="search-status" role="status" aria-live="polite" aria-atomic="true"></p>
+
+      <p class="empty-note" id="tx-empty" hidden></p>
+
+      <div class="table-wrap" id="tx-wrap">
+        <table class="tx-table" id="tx-table" role="table">
+          <caption class="sr-only">Transaction records</caption>
+          <thead role="rowgroup">
+            <tr role="row">
+              <th scope="col" role="columnheader">Date</th>
+              <th scope="col" role="columnheader">Description</th>
+              <th scope="col" role="columnheader">Category</th>
+              <th scope="col" role="columnheader" class="num">Amount</th>
+              <th scope="col" role="columnheader">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tx-body" role="rowgroup"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================ Add / edit form ========================== -->
+    <section id="add" class="app-section" aria-labelledby="form-title">
+      <h2 id="form-title" tabindex="-1">Add transaction</h2>
+      <form class="panel tx-form" id="tx-form" novalidate>
+        <p class="muted" id="form-intro">All fields are required. Extra spaces in the description are removed automatically.</p>
+
+        <div class="field field-full">
+          <label for="description">Description</label>
+          <input id="description" name="description" type="text" autocomplete="off" maxlength="200" required
+                 aria-describedby="description-hint description-note description-warning description-error">
+          <p class="hint" id="description-hint">For example: Lunch at cafeteria</p>
+          <p class="note" id="description-note"></p>
+          <p class="warning" id="description-warning"></p>
+          <p class="error" id="description-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="amount">Amount</label>
+          <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" required
+                 pattern="^(0|[1-9]\d*)(\.\d{1,2})?$" aria-describedby="amount-hint amount-error">
+          <p class="hint" id="amount-hint">Greater than 0, up to 2 decimals.</p>
+          <p class="error" id="amount-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="currency">Currency</label>
+          <select id="currency" name="currency" aria-describedby="currency-error"></select>
+          <p class="error" id="currency-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category" name="category" required aria-describedby="category-error"></select>
+          <p class="error" id="category-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="date">Date</label>
+          <div class="input-row">
+            <input id="date" name="date" type="text" inputmode="numeric" autocomplete="off" required placeholder="DD-MM-YYYY"
+                   pattern="^(0[1-9]|[12]\d|3[01])-(0[1-9]|1[0-2])-\d{4}$" aria-describedby="date-hint date-error">
+            <button type="button" class="btn btn-secondary" id="use-today">Use today</button>
+          </div>
+          <p class="hint" id="date-hint">Format DD-MM-YYYY, for example 08-10-2026.</p>
+          <p class="error" id="date-error"></p>
+        </div>
+
+        <div class="form-actions field-full">
+          <button type="submit" class="btn btn-primary" id="submit-btn">Add transaction</button>
+          <button type="button" class="btn btn-secondary" id="cancel-edit" hidden>Cancel editing</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- =============================== Settings ============================== -->
+    <section id="settings" class="app-section" aria-labelledby="settings-title">
+      <h2 id="settings-title" tabindex="-1">Settings</h2>
+
+      <div class="settings-grid">
+        <form class="panel" id="cap-form" novalidate aria-labelledby="cap-form-title">
+          <h3 id="cap-form-title">Spending cap</h3>
+          <div class="field">
+            <label for="set-cap">Cap in <span id="cap-base-label">RWF</span> (base currency)</label>
+            <input id="set-cap" type="text" inputmode="decimal" autocomplete="off" aria-describedby="set-cap-hint set-cap-error">
+            <p class="hint" id="set-cap-hint">Applies to all transactions in the tracker. Leave empty for no cap.</p>
+            <p class="error" id="set-cap-error"></p>
+          </div>
+          <button type="submit" class="btn btn-primary">Save cap</button>
+        </form>
+
+        <form class="panel" id="currency-form" novalidate aria-labelledby="currency-form-title">
+          <h3 id="currency-form-title">Currency</h3>
+          <div class="field">
+            <label for="set-display">Show amounts in</label>
+            <select id="set-display" aria-describedby="set-display-hint"></select>
+            <p class="hint" id="set-display-hint">Totals, charts, sorting and the cap use this currency.</p>
+          </div>
+          <div class="field">
+            <label for="set-base">Base currency</label>
+            <select id="set-base" aria-describedby="set-base-hint"></select>
+            <p class="hint" id="set-base-hint">Exchange rates and the cap are stored relative to this. Existing amounts keep their own currency.</p>
+          </div>
+          <button type="submit" class="btn btn-primary">Save currency settings</button>
+        </form>
+
+        <form class="panel panel-wide" id="rates-form" novalidate aria-labelledby="rates-title">
+          <h3 id="rates-title">Exchange rates</h3>
+          <p class="muted" id="rates-intro">Enter how many units of each currency equal 1 unit of the base currency.</p>
+          <div class="rates-fields" id="rates-fields"></div>
+          <button type="submit" class="btn btn-primary">Save exchange rates</button>
+        </form>
+
+        <section class="panel" aria-labelledby="categories-title">
+          <h3 id="categories-title">Categories</h3>
+          <ul class="category-manage" id="category-manage"></ul>
+          <form id="category-form" novalidate>
+            <div class="field">
+              <label for="new-category">New category</label>
+              <div class="input-row">
+                <input id="new-category" type="text" autocomplete="off" maxlength="40" aria-describedby="new-category-hint new-category-error">
+                <button type="submit" class="btn btn-primary">Add category</button>
+              </div>
+              <p class="hint" id="new-category-hint">Letters only; single spaces or hyphens between words.</p>
+              <p class="error" id="new-category-error"></p>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel panel-data" aria-labelledby="data-title">
+          <h3 id="data-title">Your data</h3>
+          <p class="muted">Data is saved in this browser only. Importing <strong>replaces</strong> your current data after you confirm.</p>
+          <div class="button-stack">
+            <button type="button" class="btn btn-secondary" id="export-btn">Export JSON backup</button>
+            <div class="field">
+              <label for="import-file">Import JSON backup</label>
+              <input id="import-file" type="file" accept="application/json,.json" aria-describedby="import-errors">
+            </div>
+            <div id="import-errors" class="import-errors" hidden></div>
+            <button type="button" class="btn btn-secondary" id="load-sample">Load sample data</button>
+            <button type="button" class="btn btn-danger" id="delete-transactions">Delete all transactions</button>
+            <button type="button" class="btn btn-danger" id="reset-all">Reset everything</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ================================ About ================================ -->
+    <section id="about" class="app-section" aria-labelledby="about-title">
+      <h2 id="about-title" tabindex="-1">About</h2>
+      <div class="panel about">
+        <p>Student Finance Tracker helps a student record expenses, stay under a spending cap and find past purchases with
+           regular expressions. It runs entirely in your browser and stores data in <code>localStorage</code>; no account or server is needed.</p>
+        <h3>Built with</h3>
+        <p>HTML5, CSS3 (Flexbox and media queries) and vanilla JavaScript ES modules. No frameworks or charting libraries.</p>
+        <h3>Features</h3>
+        <ul>
+          <li>Validated add and edit form with regular-expression rules</li>
+          <li>Live, safe regex search with highlighted matches, category filter and sorting</li>
+          <li>Dashboard with totals, category breakdown, seven-day chart and cap tracking</li>
+          <li>Multiple currencies with manual exchange rates</li>
+          <li>Validated JSON export and import</li>
+        </ul>
+        <h3>Developer and contact</h3>
+        <p>
+          Oche Emmanuel Mannix Adukwu, African Leadership University<br>
+          GitHub: <a href="https://github.com/adukwu137">github.com/adukwu137</a><br>
+          Email: <a href="mailto:o.adukwu@alustudent.com">o.adukwu@alustudent.com</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Student Finance Tracker. Individual summative project for Front-End Web Development.</p>
+      <p>Built with plain HTML, CSS and JavaScript. Exchange rates are examples that you enter yourself.</p>
+    </div>
+  </footer>
+  </div>
+
+  <!-- Live regions: polite for normal updates, assertive only for urgent budget overage. -->
+  <div class="toasts" role="region" aria-label="Notifications">
+    <p id="status-region" class="toast" role="status" aria-live="polite" aria-atomic="true"></p>
+    <p id="alert-region" class="toast toast-urgent" role="alert" aria-live="assertive" aria-atomic="true"></p>
+  </div>
+
+  <dialog id="confirm-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-message">
+    <form method="dialog">
+      <h2 id="dialog-title">Are you sure?</h2>
+      <p id="dialog-message"></p>
+      <div class="dialog-actions">
+        <button type="submit" class="btn btn-secondary" value="cancel" id="dialog-cancel">Cancel</button>
+        <button type="submit" class="btn btn-danger" value="confirm" id="dialog-confirm">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+
+</body>
+</html>
+
+
