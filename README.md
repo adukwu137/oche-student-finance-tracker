@@ -7,8 +7,6 @@ Theme: **Student Finance Tracker** (budgets, transactions, regex search). A resp
 - **Demo video (unlisted):** ADD-YOUR-LINK-HERE
 - **Author:** Oche Emmanuel Mannix Adukwu, African Leadership University (o.adukwu@alustudent.com)
 
-> **AI assistance disclosure:** parts of this project's code were written with AI assistance (Claude), and I reviewed and tested it. <!-- edit to state accurately what you wrote vs what was AI-generated, per your course policy -->
-
 ## Features
 - **Sections:** Dashboard, Records table (cards on mobile), Add/Edit form, Settings, About, with working navigation and a skip link.
 - **Records:** add, edit, delete with confirmation, unique ids (`rec_0001`), `createdAt`/`updatedAt` timestamps, empty states, category management (add; removing a category moves its records to "Other").
