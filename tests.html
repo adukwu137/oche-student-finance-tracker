@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Student Finance Tracker - tests </title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 52rem; margin: 1rem auto; padding: 0 1rem; line-height: 1.5; background: #F3F4F6; color: #1F2937; }
+        #summary { font-weight:700; padding: .75rem 1rem; border-radius: 6px; background: #E0E7FF; }
+        #summary.ok { background: #D1FAE5; } #summary.bad { background: #FEE2E2; }
+        ul { list-style: none; padding: 0 } li { padding: .3rem 0; border-bottom: 1px solid #D1D5DB; } 
+        .pass::before { content: "PASS "; color: #065F46; font-weight: 700; }
+        .fail::before { content: "FAIL "; color: #B91C1C; font-weight: 700; }
+        .skip::before { content: "SKIP "; color: #92400E; font-weight: 700; }
+        small { display: block; color: #4B5563; }
+    </style>
+    <script defer src="scripts/finance.js"></script>
+    <script defer src="scripts/validators.js"></script>
+    <script defer src="scripts/search.js"></script>
+    <script defer src="scripts/state.js"></script>
+    <script defer src="scripts/storage.js"></script>
+    <script defer src="scripts/seed-data.js"></script>
+    <script defer src="tests/suite.js"></script>
+</head>
+<body>
+    <h1>Student Finance Tracker - tests</h1>
+    <p><a href ="index.html">Back to the app</a> </p>
+    <p id="summary" role="status">Running...</p>
+    <ul id="results"></ul>
+    <script>
+        window.addEventListener('DOMcontentloaded', async () => {
+            const list = document.getElementById('results');
+            const summary = document.getElementById('summary');
+            try{
+                if(location.protocol.startsWith('http')) window.SEED_JSON_TEXT = await(await fetch('seed.json')).text();
+            } catch (e) { /* skipped test reports this */ }
+            const results = await window.SFT.suite.runAll();
+            for (const r of results) {
+                const li = document.createElement('li');
+                li.className = r.status;
+                li.append(r.name);
+                if (r.detail) { const s = document.createElement('small'); s.textContent = r.detail; li.append(s); }
+                list.append(li);
+            }
+            const n = (s) => results.filter((r) => r.status === s).length;
+            summary.textContent = `${n('pass')} passed, ${n('fail')} failed, ${n('skip')} skipped (of ${results.length})`;
+            summary.className = n('fail') ? 'bad' : 'ok';
+        });
+    </script>
+</body>
+</html>
