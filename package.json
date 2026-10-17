@@ -1,0 +1,9 @@
+{
+    "name": "student-finance-tracker",
+    "version": "1.0.0",
+    "private": "true",
+    "scripts": {
+        "test": "node tests/run-node.mjs",
+        "start": "python3 -m http.server 8000"
+    }
+}
