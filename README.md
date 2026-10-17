@@ -1,14 +1,82 @@
 # Student Finance Tracker
 
-Theme: **Student Finance Tracker** (budgets, transactions, regex search). A responsive, accessible, vanilla HTML/CSS/JavaScript app for recording expenses in **Rwandan francs (RWF)**, setting a spending cap and searching with regular expressions. It runs entirely in the browser and saves to `localStorage`.
+Theme: **Student Finance Tracker** (budgets, transactions, regex search). A responsive, accessible, vanilla HTML/CSS/JavaScript app for recording expenses, setting a spending cap and searching with regular expressions. It runs entirely in the browser and saves to `localStorage`.
 
-- **Live site (GitHub Pages):** https://adukwu137.github.io/student-finance-tracker/ <!-- confirm it opens before submitting -->
+- **Live site (GitHub Pages):** https://adukwu137.github.io/student-finance-tracker/
 - **Repository:** https://github.com/adukwu137/student-finance-tracker
 - **Demo video (unlisted):** ADD-YOUR-LINK-HERE
 - **Author:** Oche Emmanuel Mannix Adukwu, African Leadership University (o.adukwu@alustudent.com)
 
+## Design and planning (M1: spec, wireframes, accessibility plan)
+
+**Purpose and users.** A university student who needs to log everyday spending in Rwandan francs, see where the money goes, stay under a spending cap and quickly find old purchases. It runs offline in one browser and needs no account.
+
+**Data model.** One record has `id`, `description`, `amount`, `currency`, `category`, `date`, `createdAt`, `updatedAt` (full example in the *Data model* section below). The whole state is `{ categories, transactions, settings }`, saved to `localStorage` after every change and exported as JSON.
+
+**Validation plan.** Description `^\S(?:.*\S)?$` (spaces collapsed first); amount `^(0|[1-9]\d*)(\.\d{1,2})?$` and greater than 0; date typed as DD-MM-YYYY, converted to `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$` and checked against the real calendar; category `^[A-Za-z]+(?:[ -][A-Za-z]+)*$` and must be configured; advanced rule: back-reference `\b(\w+)\s+\1\b` warns about repeated words. Search uses a safe regex compiler (try/catch, error message, case toggle, `<mark>` highlighting built from DOM nodes).
+
+**Accessibility plan.**
+- Landmarks (`header`, `nav`, `main`, `section`, `footer`), one `h1`, ordered headings, .
+- Every input has a visible label; errors are text starting with "Error:", linked with `aria-describedby`, with `aria-invalid`; the first invalid field receives focus.
+- Everything works with the keyboard; visible focus ring; the confirmation dialog returns focus to the button that opened it.
+- Live regions: polite for normal updates and search results, a dedicated polite one for cap changes, one assertive only when the cap is exceeded.
+- Text contrast 4.5:1 or better, controls 3:1; meaning is never given by colour alone (words and badges accompany colour); controls at least 44px high.
+- `prefers-reduced-motion` turns animations off; mobile-first layout with breakpoints near 360px, 768px and 1024px, no horizontal scrolling down to 320px.
+
+**Wireframes (text sketches).**
+
+Desktop
+```
++--------------------------------------------------------------+
+| Student Finance Tracker      [Dashboard] Records Add/Edit ... |  black bar
++--------------------------------------------------------------+
+| Dashboard                                                    |
+| +-----------+ +-----------+ +-----------+ +-----------+      |
+| |TRANSACT.  | |TOTAL      | |TOP CATEG. | |LAST 7 DAYS|      |
+| | 14        | | RWF 201k  | | Fees      | | RWF 101k  |      |
+| +-----------+ +-----------+ +-----------+ +-----------+      |
+| +-------------------------+ +-----------------------------+  |
+| | Spending Cap Target [!] | | Spending by Category        |  |
+| | ======== bar            | | Fees  ===== RWF, %          |  |
+| | Cap / Spent / Remaining | | Books ====  RWF, %          |  |
+| +-------------------------+ +-----------------------------+  |
+| +----------------------------------------------------------+ |
+| | Spending over the last seven days (7 slim bars)          | |
+| +----------------------------------------------------------+ |
+| Records: [search] [Clear] [x] Ignore case  [Category][Sort]  |
+| | Date | Description | Category | Amount | Edit Delete |     |
+| Add/Edit form | Settings | About                             |
++--------------------------------------------------------------+
+| (black footer)                                               |
++--------------------------------------------------------------+
+```
+Phone (about 360px)
+```
++------------------------+
+| Student Finance Tracker|
+| Dashboard Records ...  |
++------------------------+
+| Dashboard              |
+| +--------------------+ |
+| | TRANSACTIONS  14   | |  one stat card per row
+| +--------------------+ |
+| | TOTAL SPENDING ... | |
+| +--------------------+ |
+| | Spending Cap [!]   | |
+| | Spending by Category |
+| | Last 7 days (bars) | |
+| Records (cards)        |
+| | date, text, amount | |
+| | [Edit] [Delete]    | |
+| Form / Settings / About|
++------------------------+
+```
+
+ The CodeVibe report is in `codevibe-reports/`.
+
+
 ## Features
-- **Sections:** Dashboard, Records table (cards on mobile), Add/Edit form, Settings, About, with working navigation and a skip link.
+- **Sections:** Dashboard, Records table (cards on mobile), Add/Edit form, Settings, About, with working navigation.
 - **Records:** add, edit, delete with confirmation, unique ids (`rec_0001`), `createdAt`/`updatedAt` timestamps, empty states, category management (add; removing a category moves its records to "Other").
 - **Validation (live, inline):** 4 regex rules plus an advanced back-reference rule, calendar-date check, errors linked with `aria-describedby` and `aria-invalid`.
 - **Search:** live regex search with a case-insensitive toggle, safe compile with an error message, `<mark>` highlighting built with DOM nodes (no HTML injection), result count, combined with the category filter and sorting.
