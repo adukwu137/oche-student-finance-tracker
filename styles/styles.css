@@ -331,3 +331,75 @@ h3 { color: var(--text); }
 }
 
 .app-header :focus-visible { outline-color: #FDE047; }
+
+:root {
+  --navy: #0F172A; --navy-deep: #000000; --navy-soft: #E2E8F0; --blue: #2563EB;
+  --teal: #047857; --teal-dark: #065F46; --teal-soft: #D1FAE5;
+  --bg: #F8FAFC; --surface: #FFFFFF; --text: #0F172A; --muted: #475569; --border: #E2E8F0;
+  --radius: 8px; --radius-small: 6px; --shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+html { font-size: 93.75%; }
+body { background: #F8FAFC; color: var(--text); }
+
+/* charcoal header, plain text title, small nav with a blue active pill */
+.app-header { background-color: #000000; background-image: none; padding: 0.5rem 1rem; gap: 0.25rem; }
+.app-header h1 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.01em; color: #fff; }
+.nav-list { gap: 0.25rem; }
+.nav-link { font-size: 0.85rem; padding: 0 0.8rem; border-radius: 6px; color: #CBD5E1; }
+.nav-link:hover:not(.active) { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.nav-link:hover, .nav-link.active { background: var(--blue); color: #fff; }
+.nav-link:hover:not(.active) { background: rgba(255, 255, 255, 0.12); }
+.nav-link.active { font-weight: 600; }
+@media (min-width: 768px) { .app-header { padding: 0.4rem 2rem; } }
+
+/* sections sit on the page; content lives in compact bordered cards */
+main { max-width: 1100px; padding: 1.25rem 1rem 2rem; }
+.app-section { background: transparent; box-shadow: none; border-radius: 0; padding: 0; margin-bottom: 1.75rem; }
+.app-section h2 { font-size: 1.2rem; color: var(--text); margin-bottom: 0.15rem; }
+.app-section > p.muted { font-size: 0.85rem; margin-bottom: 0; }
+h3 { color: var(--text); font-size: 0.95rem; }
+.panel, .app-section .panel, .stat { background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); }
+.panel, .app-section .panel { padding: 0.9rem 1rem; }
+.tx-table { box-shadow: var(--shadow); }
+.about { font-size: 0.9rem; }
+
+/* compact statistic cards */
+.stat-grid, .app-section .stat-grid { gap: 0.75rem; margin-block: 0.9rem; }
+.stat { border-left: 1px solid var(--border); padding: 0.75rem 0.9rem; }
+.stat h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; margin-bottom: 0.2rem; overflow-wrap: normal; }
+.stat-value { font-size: 1.35rem; color: var(--text); overflow-wrap: normal; }
+.stat-note { font-size: 0.8rem; }
+@media (max-width: 479px) { .stat-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* spending-cap card: title left, status pill right, thin bar, amber warning */
+.cap-panel { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 0.75rem; }
+.cap-panel > * { grid-column: 1 / -1; }
+.cap-panel #cap-title { grid-column: 1; grid-row: 1; margin: 0; }
+.cap-panel .cap-badge { grid-column: 2; grid-row: 1; margin: 0; font-size: 0.8rem; padding: 0.1rem 0.65rem; }
+.meter { height: 6px; margin-top: 0.7rem; background: #E9EDF3; border: 0; }
+.cap-figures { margin-top: 0.6rem; }
+.cap-row { padding: 0.2rem 0; border-bottom: 0; font-size: 0.85rem; }
+.cap-detail { font-size: 0.85rem; margin-top: 0.5rem; }
+.cap-panel[data-state="near"] .cap-detail, .cap-panel[data-state="near"] .cap-row:last-child dd { color: #B45309; }
+.cap-panel[data-state="over"] .cap-detail, .cap-panel[data-state="over"] .cap-row:last-child dd { color: #B91C1C; }
+.cap-panel[data-state="within"] .cap-row:last-child dd { color: #047857; }
+
+/* category bars and seven-day chart */
+.breakdown { gap: 0.55rem; }
+.breakdown-row { font-size: 0.85rem; }
+.bar { height: 4px; background: #E2E8F0; }
+.bar-fill { background: var(--blue); }
+.chart-bar { max-width: 30px; }
+@media (min-width: 768px) { .chart { height: 170px; } }
+.chart-label, .chart-value { font-size: 0.8rem; }
+
+/* compact controls and table */
+.btn { font-size: 0.85rem; padding: 0.35rem 0.9rem; border-radius: 6px; }
+input[type="text"], select, input[type="file"] { font-size: 0.9rem; border-radius: 6px; }
+label { font-size: 0.9rem; }
+.tx-table th { background: #F1F5F9; color: #334155; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.8rem; }
+@media (min-width: 768px) { .tx-table th, .tx-table td { padding: 0.55rem 0.8rem; } .tx-table { font-size: 0.9rem; } }
+.site-footer { background: #000000; color: #CBD5E1; font-size: 0.8rem; }
+#week-range, #week-empty { font-size: 0.85rem; }
+.check input { width: 24px; height: 24px; }
+.converted { font-size: 0.8rem; }
