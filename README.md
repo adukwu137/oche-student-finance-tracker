@@ -2,7 +2,7 @@
 
 Theme: **Student Finance Tracker** (budgets, transactions, regex search). A responsive, accessible, vanilla HTML/CSS/JavaScript app for recording expenses, setting a spending cap and searching with regular expressions. It runs entirely in the browser and saves to `localStorage`.
 
-- **Live site (GitHub Pages):** https://adukwu137.github.io/student-finance-tracker/
+- **Live site (GitHub Pages):** https://adukwu137.github.io/oche-student-finance-tracker/
 - **Repository:** https://github.com/adukwu137/student-finance-tracker
 - **Demo video (unlisted):** ADD-YOUR-LINK-HERE
 - **Author:** Oche Emmanuel Mannix Adukwu, African Leadership University (o.adukwu@alustudent.com)
