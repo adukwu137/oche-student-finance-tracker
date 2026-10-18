@@ -4,7 +4,7 @@ Theme: **Student Finance Tracker** (budgets, transactions, regex search). A resp
 
 - **Live site (GitHub Pages):** https://adukwu137.github.io/oche-student-finance-tracker/
 - **Repository:** https://github.com/adukwu137/student-finance-tracker
-- **Demo video (unlisted):** ADD-YOUR-LINK-HERE
+- **Demo video: https://1drv.ms/v/c/fb99e46d4f39cec1/IQCZ-7d65uGtR6wV36S_uc4gAdqlH9Bx8fk4OacMFj3Yff8?e=XDpnIG
 - **Author:** Oche Emmanuel Mannix Adukwu, African Leadership University (o.adukwu@alustudent.com)
 
 ## Design and planning (M1: spec, wireframes, accessibility plan)
