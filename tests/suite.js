@@ -603,9 +603,10 @@ test('AUDIT regex: zero-width matrix terminates and returns only non-empty range
       assert(ms < 50, `${p} on ${JSON.stringify(text)} took ${ms}ms`);
       assert(ranges.every(([a, b]) => b > a && b <= text.length), `${p} produced an empty/invalid range`);
     }
-  
+  }
   equal(findRanges('banana', compileSearch('a*').regex), [[1, 2], [3, 4], [5, 6]]);
-;
+});
+
 test('AUDIT regex: repeated global matching leaves no stale lastIndex between rows', () => {
   const { regex } = compileSearch('a');
   assert(hasMatch('a', regex) && hasMatch('a', regex) && hasMatch('xa', regex) && !hasMatch('x', regex));
@@ -614,7 +615,7 @@ test('AUDIT regex: repeated global matching leaves no stale lastIndex between ro
 });
 test('AUDIT highlight: an emoji is never split into two broken halves', () => {
   // Before the fix "." matched each surrogate half separately, producing two marks with � in them.
-  const text = 'Pizza � night;
+  const text = 'Pizza 🍕 night';
   const ranges = findRanges(text, compileSearch('🍕').regex);
   equal(ranges, [[6, 8]]);
   equal(findRanges('😀', compileSearch('.').regex), [[0, 2]]);
@@ -973,5 +974,5 @@ async function runAll(filter) {
   return results;
 }
 
-SFT.suite = { runAll };
-})(window.SFT = window.SFT || {});
+SFT.suite = { runAll }; 
+})(window.SFT = window.SFT || {});  

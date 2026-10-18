@@ -13,7 +13,7 @@ load('tests/suite.js');
 
 const filter = process.argv[2];
 const results = await globalThis.SFT.suite.runAll(filter);
-if(filter && results.length === 0) { console.log(`No tests match "${filter}".`); process.exit(2); }\
+if(filter && results.length === 0) { console.log(`No tests match "${filter}".`); process.exit(2); }
 let failed = 0;
 for (const r of results) {
     const mark = r.status === 'pass' ? 'PASS' : r.status === 'skip' ? 'SKIP' : 'FAIL';
