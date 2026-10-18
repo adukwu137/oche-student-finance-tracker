@@ -596,7 +596,7 @@ test('AUDIT regex: malformed corpus never throws and always yields a readable er
 });
 test('AUDIT regex: zero-width matrix terminates and returns only non-empty ranges', () => {
   for (const p of ['^', '$', '\\b', '\\B', '(?=a)', '(?!a)', '(?<=a)', '(?<!a)', 'a*', 'x*', '(|a)', '^$', '\\b|\\B']) {
-    for (const text of ['', 'a', 'banana', '�a�, ' ' {
+    for (const text of ['', 'a', 'banana', '😀a😀', ' ']) {
       const { regex } = compileSearch(p);
       let ranges;
       const { ms } = timed(() => { ranges = findRanges(text, regex); });
@@ -615,13 +615,13 @@ test('AUDIT regex: repeated global matching leaves no stale lastIndex between ro
 test('AUDIT highlight: an emoji is never split into two broken halves', () => {
   // Before the fix "." matched each surrogate half separately, producing two marks with � in them.
   const text = 'Pizza � night;
-  const ranges = findRanges(text, compileSearch('��'.regex);
+  const ranges = findRanges(text, compileSearch('🍕').regex);
   equal(ranges, [[6, 8]]);
-  equal(findRanges('�, compileSearch('.').regex, [[0, 2]];
+  equal(findRanges('😀', compileSearch('.').regex), [[0, 2]]);
   const segs = splitByRanges(text, findRanges(text, compileSearch('.{2}').regex));
   assert(segs.every((x) => !/[\ud800-\udbff]$/.test(x.text) && !/^[\udc00-\udfff]/.test(x.text)), 'no segment may start/end inside a surrogate pair');
   equal(segs.map((x) => x.text).join(''), text);
-�';
+});
 test('AUDIT highlight: patterns valid only in non-unicode mode still work (fallback)', () => {
   const r = compileSearch('a\\-b');
   assert(r.regex && hasMatch('a-b', r.regex));
